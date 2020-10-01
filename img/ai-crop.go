@@ -7,10 +7,9 @@ import (
 	"github.com/rosbit/multipart-creator"
 	"github.com/rosbit/go-wxmp-api/call-wxmp"
 	"github.com/rosbit/go-wxmp-api/auth"
-	"bytes"
-	"fmt"
+	"github.com/rosbit/go-wxmp-api/img-util"
 	"io"
-	u "net/url"
+	"fmt"
 	"strings"
 )
 
@@ -29,10 +28,7 @@ type AICropRes struct {
 
 func AICropImgUrl(cfgName, imgUrl string, ratios []float64) (*AICropRes, error) {
 	genParams := func(accessToken string) (url string, body interface{}, headers map[string]string) {
-		v := u.Values{}
-		v.Set("img_url", imgUrl)
-		v.Set("access_token", accessToken)
-		url = fmt.Sprintf("https://api.weixin.qq.com/cv/img/aicrop?%s", v.Encode())
+		url = imgutil.GenerateUrl("https://api.weixin.qq.com/cv/img/aicrop", accessToken, imgUrl)
 		if len(ratios) == 0 {
 			body = nil
 		} else {
@@ -50,7 +46,6 @@ func AICropImgUrl(cfgName, imgUrl string, ratios []float64) (*AICropRes, error) 
 
 func AICropImg(cfgName, fileName string, fp io.Reader, ratios []float64) (*AICropRes, error) {
 	genParams := func(accessToken string) (url string, body interface{}, headers map[string]string) {
-		url = fmt.Sprintf("https://api.weixin.qq.com/cv/img/aicrop?access_token=%s", accessToken)
 		var params []multipart.Param
 		if len(ratios) == 0 {
 			params = make([]multipart.Param, 1)
@@ -64,11 +59,7 @@ func AICropImg(cfgName, fileName string, fp io.Reader, ratios []float64) (*AICro
 		}
 		params[0] = multipart.Param{"img", fileName, fp}
 
-		b := &bytes.Buffer{}
-		contentType, _ := multipart.Create(b, "", params)
-		body = b.Bytes()
-		headers = map[string]string{"Content-Type": contentType}
-		return
+		return imgutil.GenerateImgMultipartParams("https://api.weixin.qq.com/cv/img/aicrop", accessToken, params)
 	}
 
 	return aiCrop(cfgName, genParams)

@@ -6,11 +6,9 @@ package img
 import (
 	"github.com/rosbit/multipart-creator"
 	"github.com/rosbit/go-wxmp-api/call-wxmp"
+	"github.com/rosbit/go-wxmp-api/img-util"
 	"github.com/rosbit/go-wxmp-api/auth"
-	"bytes"
-	"fmt"
 	"io"
-	u "net/url"
 )
 
 type Point struct {
@@ -37,10 +35,7 @@ type QRCodeRes struct {
 
 func ScanQrcodeImgUrl(cfgName, imgUrl string) (*QRCodeRes, error) {
 	genParams := func(accessToken string) (url string, body interface{}, headers map[string]string) {
-		v := u.Values{}
-		v.Set("img_url", imgUrl)
-		v.Set("access_token", accessToken)
-		url = fmt.Sprintf("https://api.weixin.qq.com/cv/img/qrcode?%s", v.Encode())
+		url = imgutil.GenerateUrl("https://api.weixin.qq.com/cv/img/qrcode", accessToken, imgUrl)
 		return
 	}
 
@@ -49,16 +44,13 @@ func ScanQrcodeImgUrl(cfgName, imgUrl string) (*QRCodeRes, error) {
 
 func ScanQrcodeImg(cfgName, fileName string, fp io.Reader) (*QRCodeRes, error) {
 	genParams := func(accessToken string) (url string, body interface{}, headers map[string]string) {
-		url = fmt.Sprintf("https://api.weixin.qq.com/cv/img/qrcode?access_token=%s", accessToken)
-		params := []multipart.Param{
-			multipart.Param{"img", fileName, fp},
-		}
-
-		b := &bytes.Buffer{}
-		contentType, _ := multipart.Create(b, "", params)
-		body = b.Bytes()
-		headers = map[string]string{"Content-Type": contentType}
-		return
+		return imgutil.GenerateImgMultipartParams(
+			"https://api.weixin.qq.com/cv/img/qrcode",
+			accessToken,
+			[]multipart.Param{
+				multipart.Param{"img", fileName, fp},
+			},
+		)
 	}
 
 	return scanQrcode(cfgName, genParams)

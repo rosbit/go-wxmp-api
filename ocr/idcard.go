@@ -6,11 +6,9 @@ package ocr
 import (
 	"github.com/rosbit/multipart-creator"
 	"github.com/rosbit/go-wxmp-api/call-wxmp"
+	"github.com/rosbit/go-wxmp-api/img-util"
 	"github.com/rosbit/go-wxmp-api/auth"
-	"bytes"
-	"fmt"
 	"io"
-	u "net/url"
 )
 
 type IdCard interface {
@@ -42,11 +40,7 @@ type BackIdCard struct {
 
 func OcrIdCardImgUrl(cfgName, imgUrl string, isFront bool) (IdCard, error) {
 	genParams := func(accessToken string) (url string, body interface{}, headers map[string]string) {
-		v := u.Values{}
-		v.Set("img_url", imgUrl)
-		v.Set("access_token", accessToken)
-		v.Set("type", "photo")
-		url = fmt.Sprintf("https://api.weixin.qq.com/cv/ocr/idcard?%s", v.Encode())
+		url = imgutil.GenerateUrl("https://api.weixin.qq.com/cv/ocr/idcard?type=photo", accessToken, imgUrl)
 		return
 	}
 
@@ -55,16 +49,13 @@ func OcrIdCardImgUrl(cfgName, imgUrl string, isFront bool) (IdCard, error) {
 
 func OcrIdCardImg(cfgName, fileName string, fp io.Reader, isFront bool) (IdCard, error) {
 	genParams := func(accessToken string) (url string, body interface{}, headers map[string]string) {
-		url = fmt.Sprintf("https://api.weixin.qq.com/cv/ocr/idcard?type=photo&access_token=%s", accessToken)
-		params := []multipart.Param{
-			multipart.Param{"img", fileName, fp},
-		}
-
-		b := &bytes.Buffer{}
-		contentType, _ := multipart.Create(b, "", params)
-		body = b.Bytes()
-		headers = map[string]string{"Content-Type": contentType}
-		return
+		return imgutil.GenerateImgMultipartParams(
+			"https://api.weixin.qq.com/cv/ocr/idcard?type=photo",
+			accessToken,
+			[]multipart.Param{
+				multipart.Param{"img", fileName, fp},
+			},
+		)
 	}
 
 	return ocrIdCard(cfgName, genParams, isFront)

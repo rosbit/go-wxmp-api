@@ -6,11 +6,9 @@ package ocr
 import (
 	"github.com/rosbit/multipart-creator"
 	"github.com/rosbit/go-wxmp-api/call-wxmp"
+	"github.com/rosbit/go-wxmp-api/img-util"
 	"github.com/rosbit/go-wxmp-api/auth"
-	"bytes"
-	"fmt"
 	"io"
-	u "net/url"
 )
 
 type PrintedText struct {
@@ -23,10 +21,7 @@ type PrintedText struct {
 
 func ScanPrintedTextImgUrl(cfgName, imgUrl string) (*PrintedText, error) {
 	genParams := func(accessToken string) (url string, body interface{}, headers map[string]string) {
-		v := u.Values{}
-		v.Set("img_url", imgUrl)
-		v.Set("access_token", accessToken)
-		url = fmt.Sprintf("http://api.weixin.qq.com/cv/ocr/comm?%s", v.Encode())
+		url = imgutil.GenerateUrl("http://api.weixin.qq.com/cv/ocr/comm", accessToken, imgUrl)
 		return
 	}
 
@@ -35,16 +30,13 @@ func ScanPrintedTextImgUrl(cfgName, imgUrl string) (*PrintedText, error) {
 
 func ScanPrintedTextImg(cfgName, fileName string, fp io.Reader) (*PrintedText, error) {
 	genParams := func(accessToken string) (url string, body interface{}, headers map[string]string) {
-		url = fmt.Sprintf("http://api.weixin.qq.com/cv/ocr/comm?access_token=%s", accessToken)
-		params := []multipart.Param{
-			multipart.Param{"img", fileName, fp},
-		}
-
-		b := &bytes.Buffer{}
-		contentType, _ := multipart.Create(b, "", params)
-		body = b.Bytes()
-		headers = map[string]string{"Content-Type": contentType}
-		return
+		return imgutil.GenerateImgMultipartParams(
+			"http://api.weixin.qq.com/cv/ocr/comm",
+			accessToken,
+			[]multipart.Param{
+				multipart.Param{"img", fileName, fp},
+			},
+		)
 	}
 
 	return scanPrintedText(cfgName, genParams)

@@ -6,19 +6,14 @@ package ocr
 import (
 	"github.com/rosbit/multipart-creator"
 	"github.com/rosbit/go-wxmp-api/call-wxmp"
+	"github.com/rosbit/go-wxmp-api/img-util"
 	"github.com/rosbit/go-wxmp-api/auth"
-	"bytes"
-	"fmt"
 	"io"
-	u "net/url"
 )
 
 func OcrBankcardImgUrl(cfgName, imgUrl string) (id string, err error) {
 	genParams := func(accessToken string) (url string, body interface{}, headers map[string]string) {
-		v := u.Values{}
-		v.Set("img_url", imgUrl)
-		v.Set("access_token", accessToken)
-		url = fmt.Sprintf("https://api.weixin.qq.com/cv/ocr/bankcard?%s", v.Encode())
+		url = imgutil.GenerateUrl("https://api.weixin.qq.com/cv/ocr/bankcard", accessToken, imgUrl)
 		return
 	}
 
@@ -27,16 +22,13 @@ func OcrBankcardImgUrl(cfgName, imgUrl string) (id string, err error) {
 
 func OcrBankcardImg(cfgName, fileName string, fp io.Reader) (id string, err error) {
 	genParams := func(accessToken string) (url string, body interface{}, headers map[string]string) {
-		url = fmt.Sprintf("https://api.weixin.qq.com/cv/ocr/bankcard?access_token=%s", accessToken)
-		params := []multipart.Param{
-			multipart.Param{"img", fileName, fp},
-		}
-
-		b := &bytes.Buffer{}
-		contentType, _ := multipart.Create(b, "", params)
-		body = b.Bytes()
-		headers = map[string]string{"Content-Type": contentType}
-		return
+		return imgutil.GenerateImgMultipartParams(
+			"https://api.weixin.qq.com/cv/ocr/bankcard",
+			accessToken,
+			[]multipart.Param{
+				multipart.Param{"img", fileName, fp},
+			},
+		)
 	}
 
 	return ocrBankcard(cfgName, genParams)
