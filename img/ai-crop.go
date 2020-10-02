@@ -14,16 +14,8 @@ import (
 )
 
 type AICropRes struct {
-	CropResults []struct{
-		Left int `json:"crop_left"`
-		Top  int `json:"crop_top"`
-		Right  int `json:"crop_right"`
-		Bottom int `json:"crop_bottom"`
-	} `json:"results"`
-	ImgSize struct {
-		Width  int `json:"w"`
-		Heigth int `json:"h"`
-	} `json:"img_size"`
+	CropResults []Crop `json:"results"`
+	ImgSize `json:"img_size"`
 }
 
 func AICropImgUrl(cfgName, imgUrl string, ratios []float64) (*AICropRes, error) {

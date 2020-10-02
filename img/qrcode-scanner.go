@@ -11,26 +11,13 @@ import (
 	"io"
 )
 
-type Point struct {
-	X int `json:"x"`
-	Y int `json:"y"`
-}
-
 type QRCodeRes struct {
 	CodeResults []struct{
 		TypeName string `json:"type_name"`
 		Data string `json:"data"`
-		Pos struct{
-			LeftTop     Point `json:"left_top"`
-			RigthTop    Point `json:"right_top"`
-			RightBottom Point `json:"right_bottom"`
-			LeftBottom  Point `json:"left_bottom"`
-		} `json:"pos"`
+		Pos `json:"pos"`
 	} `json:"code_results"`
-	ImgSize struct {
-		Width  int `json:"w"`
-		Heigth int `json:"h"`
-	} `json:"img_size"`
+	ImgSize `json:"img_size"`
 }
 
 func ScanQrcodeImgUrl(cfgName, imgUrl string) (*QRCodeRes, error) {
