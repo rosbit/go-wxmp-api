@@ -11,46 +11,34 @@ import (
 
 // get paied union_id by open_id & transaction_id
 func GetPaidUnionIdByTxId(cfgName string, openId string, txId string) (unionId string, err error) {
-	token := NewAccessToken(cfgName)
-	if token == nil {
-		err = fmt.Errorf("no config found for %s", cfgName)
+	genParams := func(accessToken string) (url string, body interface{}, headers map[string]string) {
+		url = fmt.Sprintf("https://api.weixin.qq.com/wxa/getpaidunionid?access_token=%s&openid=%s&transaction_id=%s",
+			accessToken, openId, txId,
+		)
 		return
 	}
-	accessToken, err := token.Get()
-	if err != nil {
-		return "", err
-	}
 
-	url := fmt.Sprintf("https://api.weixin.qq.com/wxa/getpaidunionid?access_token=%s&openid=%s&transaction_id=%s",
-		accessToken, openId, txId,
-	)
-	return getPaiedUnionId(url)
+	return getPaiedUnionId(cfgName, genParams)
 }
 
 // get paied union_id by open_id, mch_id & out_trade_no
 func GetPaidUnionIdByTradeNo(cfgName string, openId string, mchId, outTradeNo string) (unionId string, err error) {
-	token := NewAccessToken(cfgName)
-	if token == nil {
-		err = fmt.Errorf("no config found for %s", cfgName)
+	genParams := func(accessToken string) (url string, body interface{}, headers map[string]string) {
+		url = fmt.Sprintf("https://api.weixin.qq.com/wxa/getpaidunionid?access_token=%s&openid=%s&mch_id=%si&out_trade_no=%s",
+			accessToken, openId, mchId, outTradeNo,
+		)
 		return
 	}
-	accessToken, err := token.Get()
-	if err != nil {
-		return "", err
-	}
 
-	url := fmt.Sprintf("https://api.weixin.qq.com/wxa/getpaidunionid?access_token=%s&openid=%s&mch_id=%si&out_trade_no=%s",
-		accessToken, openId, mchId, outTradeNo,
-	)
-	return getPaiedUnionId(url)
+	return getPaiedUnionId(cfgName, genParams)
 }
 
-func getPaiedUnionId(url string) (string, error) {
+func getPaiedUnionId(cfgName string, genParams FnGeneParams) (string, error) {
 	var res struct {
 		callwxmp.BaseResult
 		Unionid string
 	}
-	if err := callwxmp.CallWxmp(url, "GET", nil, nil, callwxmp.HttpCall, &res); err != nil {
+	if err := CallWxmp(cfgName, genParams, "GET", callwxmp.HttpCall, &res); err != nil {
 		return "", err
 	}
 	return res.Unionid, nil
