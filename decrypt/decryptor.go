@@ -44,12 +44,12 @@ func Decrypt(sessionKey, encryptedData, iv string) ([]byte, error) {
 
 	plainText := make([]byte, len(cipherText))
 	mode := cipher.NewCBCDecrypter(block, ivBytes)
-	mode.CryptBlocks(cipherText, plainText)
-	cipherText, err = pkcs7Unpad(plainText, block.BlockSize())
+	mode.CryptBlocks(plainText, cipherText)
+	res, err := pkcs7Unpad(plainText, block.BlockSize())
 	if err != nil {
 		return nil, err
 	}
-	return plainText, nil
+	return res, nil
 }
 
 func pkcs7Unpad(data []byte, blockSize int) ([]byte, error) {
