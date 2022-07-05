@@ -1,7 +1,7 @@
 package callwxmp
 
 import (
-	"github.com/rosbit/go-wget"
+	"github.com/rosbit/gnet"
 	"fmt"
 	"io"
 )
@@ -9,15 +9,15 @@ import (
 type FnCallWxmp func(url string, method string, params interface{}, headers map[string]string) ([]byte, error)
 
 func HttpCall(url string, method string, postData interface{}, headers map[string]string) ([]byte, error) {
-	return callWget(url, method, postData, headers, wget.Wget)
+	return callGnet(url, method, postData, headers, gnet.Http)
 }
 
 func JsonCall(url string, method string, jsonData interface{}, headers map[string]string) ([]byte, error) {
-	return callWget(url, method, jsonData, headers, wget.PostJson)
+	return callGnet(url, method, jsonData, headers, gnet.JSON)
 }
 
-func callWget(url string, method string, postData interface{}, headers map[string]string, fnCall wget.HttpFunc) ([]byte, error) {
-	status, content, _, err := fnCall(url, method, postData, headers)
+func callGnet(url string, method string, postData interface{}, headers map[string]string, fnCall gnet.HttpFunc) ([]byte, error) {
+	status, content, _, err := fnCall(url, gnet.M(method), gnet.Params(postData), gnet.Headers(headers))
 	if err != nil {
 		return nil, err
 	}
@@ -30,15 +30,15 @@ func callWget(url string, method string, postData interface{}, headers map[strin
 type FnGetBody func(url string, method string, params interface{}, headers map[string]string) (contentType string, body io.ReadCloser, err error)
 
 func PostToReturnBody(url string, method string, params interface{}, headers map[string]string) (contentType string, body io.ReadCloser, err error) {
-	return callToReturnBody(url, method, params, headers, wget.PostJson)
+	return callToReturnBody(url, method, params, headers, gnet.JSON)
 }
 
 func JsonCallToReturnBody(url string, method string, params interface{}, headers map[string]string) (contentType string, body io.ReadCloser, err error) {
-	return callToReturnBody(url, method, params, headers, wget.Wget)
+	return callToReturnBody(url, method, params, headers, gnet.Http)
 }
 
-func callToReturnBody(url string, method string, params interface{}, headers map[string]string, call wget.HttpFunc) (contentType string, body io.ReadCloser, err error) {
-	status, _, resp, e := call(url, method, params, headers, wget.Options{DontReadRespBody:true})
+func callToReturnBody(url string, method string, params interface{}, headers map[string]string, call gnet.HttpFunc) (contentType string, body io.ReadCloser, err error) {
+	status, _, resp, e := call(url, gnet.M(method), gnet.Params(params), gnet.Headers(headers), gnet.DontReadRespBody())
 	if e != nil {
 		err = e
 		return

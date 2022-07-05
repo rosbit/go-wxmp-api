@@ -1,6 +1,8 @@
 github.com/beevik/etree v1.1.0 h1:T0xke/WvNtMoCqgzPhkX2r4rjY3GDZFi+FjpRZY2Jbs=
 github.com/beevik/etree v1.1.0/go.mod h1:r8Aw8JqVegEf0w2fDnATrX9VpkMcyFeM0FhwO62wh+A=
-github.com/rosbit/go-wget v1.2.6 h1:MbPc3XW3OtzpTL2HpC8VlbCcKaUSd3G80OPF9s7uFGI=
-github.com/rosbit/go-wget v1.2.6/go.mod h1:8Tt92GKM/K9WI65yYkX0lwJDnRp64Vd082ojViWT6T4=
+github.com/mroth/weightedrand v0.4.1 h1:rHcbUBopmi/3x4nnrvwGJBhX9d0vk+KgoLUZeDP6YyI=
+github.com/mroth/weightedrand v0.4.1/go.mod h1:3p2SIcC8al1YMzGhAIoXD+r9olo/g/cdJgAD905gyNE=
+github.com/rosbit/gnet v0.0.9 h1:/YbXJAbBfwH5U3BBKeMDXSGz7Fv5Yh5IJW6UFEuw9cQ=
+github.com/rosbit/gnet v0.0.9/go.mod h1:4p58JSylqipqD061GlEB7pSjeU6qJwhxHpzW832KMZI=
 github.com/rosbit/multipart-creator v0.0.3 h1:k9JA5cZXi8QcMPzJj5Sxs6qy5Atcbs4QwgAvKQIYIDk=
 github.com/rosbit/multipart-creator v0.0.3/go.mod h1:6TbPv0tGtvVZCpCFXQTCvhQiAh/1hc7QsnqHhDz0nHE=
